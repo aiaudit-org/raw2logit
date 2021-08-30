@@ -1,6 +1,4 @@
-# | 
-  | From Lens to Logit 
-  | Addressing Camera Hardware-Drift Using Raw Sensor Data
+# From Lens to Logit - Addressing Camera Hardware-Drift Using Raw Sensor Data
 Intro
 ## Data access
 ## Code
