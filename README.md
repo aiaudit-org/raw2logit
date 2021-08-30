@@ -26,7 +26,10 @@ We make available two data sets.
 
 In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
 ## Data access
-If you use our code you can use the convenient cloud storage integration. Data will be loaded automatically from a cloud storage bucket and stored to your working machine. See https://github.com/aiaudit-org/lens2logit/blob/f8a165a0c094456f68086167f0bef14c3b311a4e/utils/base.py#L130 for the code snippet doing that.
+If you use our code you can use the convenient cloud storage integration. Data will be loaded automatically from a cloud storage bucket and stored to your working machine. You can find the code snippet doing that here
+
+https://github.com/aiaudit-org/lens2logit/blob/f8a165a0c094456f68086167f0bef14c3b311a4e/utils/base.py#L130
+
 We also maintain a copy of the entire dataset with a permanent identifier at Zenodo which you can find under 10.5281/zenodo.5235536
 ## Code
 ### Dependencies
