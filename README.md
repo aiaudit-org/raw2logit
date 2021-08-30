@@ -1,3 +1,4 @@
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
 # From Lens to Logit - Addressing Camera Hardware-Drift Using Raw Sensor Data
 
 *This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.*
@@ -43,13 +44,15 @@ We also maintain a copy of the entire dataset with a permanent identifier at Zen
 ## Code
 ### Dependencies
 #### Conda environment and dependencies
-To make running this code easier you can install the latest conda environment for this project stored in `perturbed-environment.yml`.
-##### Install environment from `perturbed-environment.yml`
-If you want to install the latest conda environment run
-`conda env create -f perturbed-environment.yml` 
-##### Install segmentation_models_pytorch newest version
-PyPi version is not up-to-date with github version and lacks features
-`python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch`
+To run this code out-of-the-box you can install the latest project conda environment stored in `perturbed-environment.yml`
+```bash
+conda env create -f perturbed-environment.yml
+```
+#### segmentation_models_pytorch newest version
+We noticed that PyPi package for `segmentation_models_pytorch` is sometimes behind the project's github repository. If you encounter `smp` related problems we reccomend installing directly from the `smp`  reposiroty via
+```bash
+python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
+```
 ### Recreate experiments
 ## Virtual lab log
 We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com/#/). There you can browse experiment runs, analyze results through SQL queries and download trained processing and task models.
