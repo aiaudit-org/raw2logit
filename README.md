@@ -2,6 +2,8 @@
 
 *This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.*
 
+In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
+
 ## A short introduction
 <p align="center">
 <img src="https://github.com/aiaudit-org/lens2logit/blob/master/readme/Slice%208.png">
@@ -23,14 +25,21 @@ We make available two data sets.
    * **548 raw drone camera images** for car segmentation, alongside 
    * **3,288 variations measured at six different intensities** and also twelve additional sets totalling 
    * **6,576 images of the raw sensor data processed through different pipelines**.
-
-In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
 ## Data access
-If you use our code you can use the convenient cloud storage integration. Data will be loaded automatically from a cloud storage bucket and stored to your working machine. You can find the code snippet doing that here
+If you use our code you can use the convenient cloud storage integration. Data will be loaded automatically from a cloud storage bucket and stored to your working machine. You can find the code snippet doing that [here](https://github.com/aiaudit-org/lens2logit/blob/f8a165a0c094456f68086167f0bef14c3b311a4e/utils/base.py#L130)
 
-https://github.com/aiaudit-org/lens2logit/blob/f8a165a0c094456f68086167f0bef14c3b311a4e/utils/base.py#L130
-
-We also maintain a copy of the entire dataset with a permanent identifier at Zenodo which you can find under 10.5281/zenodo.5235536
+```python
+def get_b2_bucket():
+    bucket_name = 'perturbed-minds'
+    application_key_id = '003d6b042de536a0000000004'
+    application_key = 'K003E5Cr+BAYlvSHfg2ynLtvS5aNq78'
+    info = InMemoryAccountInfo()
+    b2_api = B2Api(info)
+    b2_api.authorize_account('production', application_key_id, application_key)
+    bucket = b2_api.get_bucket_by_name(bucket_name)
+    return bucket
+```
+We also maintain a copy of the entire dataset with a permanent identifier at Zenodo which you can find under 10.5281/zenodo.5235536.
 ## Code
 ### Dependencies
 #### Conda environment and dependencies
