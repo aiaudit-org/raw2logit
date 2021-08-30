@@ -46,12 +46,12 @@ We also maintain a copy of the entire dataset with a permanent identifier at Zen
 #### Conda environment and dependencies
 To run this code out-of-the-box you can install the latest project conda environment stored in `perturbed-environment.yml`
 ```console
-conda env create -f perturbed-environment.yml
+foo@bar:~$ conda env create -f perturbed-environment.yml
 ```
 #### segmentation_models_pytorch newest version
 We noticed that PyPi package for `segmentation_models_pytorch` is sometimes behind the project's github repository. If you encounter `smp` related problems we reccomend installing directly from the `smp`  reposiroty via
 ```console
-python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
+foo@bar:~$ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
 ```
 ### Recreate experiments
 ## Virtual lab log
