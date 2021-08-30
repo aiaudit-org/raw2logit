@@ -41,7 +41,7 @@ def get_b2_bucket():
     bucket = b2_api.get_bucket_by_name(bucket_name)
     return bucket
 ```
-We also maintain a copy of the entire dataset with a permanent identifier at Zenodo which you can find under 10.5281/zenodo.5235536.
+We also maintain a copy of the entire dataset with a permanent identifier at Zenodo which you can find here [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536).
 ## Code
 ### Dependencies
 #### Conda environment and dependencies
