@@ -38,9 +38,11 @@ PyPi version is not up-to-date with github version and lacks features
 `python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch`
 ### Recreate experiments
 ## Virtual lab log
-We maintain a collaborative virtual lab log at this address. There you can browse experiment runs, analyze results through SQL queries and download trained processing and task models.
+We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com/#/). There you can browse experiment runs, analyze results through SQL queries and download trained processing and task models.
 <p align="center">
 <img src="https://github.com/aiaudit-org/lens2logit/blob/master/readme/mlflow%20(1).png">
 </p>
 ### Review our experiments
+Experiments are listed in the left column. You can select individual runs or compare metrics and parameters across different runs. For runs where we tracked images of intermediate processing steps and images of the gradients at these processing steps you can find at the bottom of a run page in the *results* folder for each epoch.
 ### Use our trained models
+When selecting a run and a model was saved you can find the model files, state dictionary and instructions to load at the bottom of a run page under *models*. In the menu bar at the top of the virtual lab log you can also access models via the *Model Registry*. Our code is well integrated with the *mlflow* autologging and -loading package for PyTorch. So when using our code you can just specify the *model uri* as an argument and models will be fetched from the model registry automatically.
