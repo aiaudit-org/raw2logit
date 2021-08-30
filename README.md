@@ -42,6 +42,7 @@ We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo
 <p align="center">
 <img src="https://github.com/aiaudit-org/lens2logit/blob/master/readme/mlflow%20(1).png">
 </p>
+
 ### Review our experiments
 Experiments are listed in the left column. You can select individual runs or compare metrics and parameters across different runs. For runs where we tracked images of intermediate processing steps and images of the gradients at these processing steps you can find at the bottom of a run page in the *results* folder for each epoch.
 ### Use our trained models
