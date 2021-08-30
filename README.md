@@ -37,5 +37,10 @@ If you want to install the latest conda environment run
 PyPi version is not up-to-date with github version and lacks features
 `python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch`
 ### Recreate experiments
-### Review our experiments
-### Use our trained models
+### Virtual lab log
+We maintain a collaborative virtual lab log at this address. There you can browse experiment runs, analyze results through SQL queries and download trained processing and task models.
+<p align="center">
+<img src="https://github.com/aiaudit-org/lens2logit/blob/master/readme/mlflow%20(1).png">
+</p>
+#### Review our experiments
+#### Use our trained models
