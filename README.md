@@ -15,8 +15,14 @@ Specifically, we demonstrate
 3. **image processing customization**. 
 
 We make available two data sets. 
-1. **Raw-Microscopy**, contains **940 raw bright-field microscopy images** of human blood smear slides for leukocyte classification alongside **5,640 variations measured at six different intensities** and twelve additional sets totalling **11,280 images of the raw sensor data processed through different pipelines**.
-2. **Raw-Drone**, contains **548 raw drone camera images** for car segmentation, alongside **3,288 variations measured at six different intensities** and also twelve additional sets totalling **6,576 images of the raw sensor data processed through different pipelines**.
+1. **Raw-Microscopy**, contains 
+   * **940 raw bright-field microscopy images** of human blood smear slides for leukocyte classification alongside 
+   * **5,640 variations measured at six different intensities** and twelve additional sets totalling 
+   * **11,280 images of the raw sensor data processed through different pipelines**.
+3. **Raw-Drone**, contains 
+   * **548 raw drone camera images** for car segmentation, alongside 
+   * **3,288 variations measured at six different intensities** and also twelve additional sets totalling 
+   * **6,576 images of the raw sensor data processed through different pipelines**.
 
 In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
 ## Data access
