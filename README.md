@@ -54,6 +54,70 @@ We noticed that PyPi package for `segmentation_models_pytorch` is sometimes behi
 foo@bar:~$ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
 ```
 ### Recreate experiments
+The central file for using the **Lens2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the type of experiments reported in the [paper](https://openreview.net/forum?id=DRAywM1BhU)
+#### Controlled synthesis of hardware-drift test cases
+```console
+foo@bar:~$ python train.py \
+--experiment_name YOUR-EXPERIMENT-NAME \
+--run_name YOUR-RUN-NAME \
+--dataset Microscopy \
+--lr 1e-5 \
+--n_splits 5 \
+--epochs 5 \
+--classifier_pretrained \
+--processing_mode static \
+--augmentation weak \
+--log_model True \
+--iso 0.01 \
+--freeze_processor \
+--processor_uri "$processor_uri" \
+--track_processing \
+--track_every_epoch \
+--track_predictions \
+--track_processing_gradients \
+--track_save_tensors \
+```
+#### Modular hardware-drift forensics
+```console
+foo@bar:~$ python train.py \
+--experiment_name YOUR-EXPERIMENT-NAME \
+--run_name YOUR-RUN-NAME \
+--dataset Microscopy \
+--adv_training
+--lr 1e-5 \
+--n_splits 5 \
+--epochs 5 \
+--classifier_pretrained \
+--processing_mode parametrized \
+--augmentation weak \
+--log_model True \
+--iso 0.01 \
+--track_processing \
+--track_every_epoch \
+--track_predictions \
+--track_processing_gradients \
+--track_save_tensors \
+```
+#### Image processing customization
+```console
+foo@bar:~$ python train.py \
+--experiment_name YOUR-EXPERIMENT-NAME \
+--run_name YOUR-RUN-NAME \
+--dataset Microscopy \
+--lr 1e-5 \
+--n_splits 5 \
+--epochs 5 \
+--classifier_pretrained \
+--processing_mode parametrized \
+--augmentation weak \
+--log_model True \
+--iso 0.01 \
+--track_processing \
+--track_every_epoch \
+--track_predictions \
+--track_processing_gradients \
+--track_save_tensors \
+```
 ## Virtual lab log
 We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com/#/). There you can browse experiment runs, analyze results through SQL queries and download trained processing and task models.
 <p align="center">
