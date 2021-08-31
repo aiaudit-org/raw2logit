@@ -46,18 +46,18 @@ We also maintain a copy of the entire dataset with a permanent identifier at Zen
 #### Conda environment and dependencies
 To run this code out-of-the-box you can install the latest project conda environment stored in `perturbed-environment.yml`
 ```console
-foo@bar:~$ conda env create -f perturbed-environment.yml
+$ conda env create -f perturbed-environment.yml
 ```
 #### segmentation_models_pytorch newest version
 We noticed that PyPi package for `segmentation_models_pytorch` is sometimes behind the project's github repository. If you encounter `smp` related problems we reccomend installing directly from the `smp`  reposiroty via
 ```console
-foo@bar:~$ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
+$ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
 ```
 ### Recreate experiments
 The central file for using the **Lens2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the type of experiments reported in the [paper](https://openreview.net/forum?id=DRAywM1BhU)
 #### Controlled synthesis of hardware-drift test cases
 ```console
-foo@bar:~$ python train.py \
+$ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
 --run_name YOUR-RUN-NAME \
 --dataset Microscopy \
@@ -79,7 +79,7 @@ foo@bar:~$ python train.py \
 ```
 #### Modular hardware-drift forensics
 ```console
-foo@bar:~$ python train.py \
+$ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
 --run_name YOUR-RUN-NAME \
 --dataset Microscopy \
@@ -100,7 +100,7 @@ foo@bar:~$ python train.py \
 ```
 #### Image processing customization
 ```console
-foo@bar:~$ python train.py \
+$ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
 --run_name YOUR-RUN-NAME \
 --dataset Microscopy \
