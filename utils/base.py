@@ -200,8 +200,8 @@ def get_mlflow_model_by_name(experiment_name, run_name,
     
     # 0. mlflow basics
     mlflow.set_tracking_uri(tracking_uri)
-os.environ["AWS_ACCESS_KEY_ID"] = #TODO: add your AWS access key if you want to write your results to our collaborative lab server
-    os.environ["AWS_SECRET_ACCESS_KEY"] = #TODO: add your AWS seceret access key if you want to write your results to our collaborative lab server
+    os.environ["AWS_ACCESS_KEY_ID"] = "#TODO: add your AWS access key if you want to write your results to our collaborative lab server"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "#TODO: add your AWS seceret access key if you want to write your results to our collaborative lab server"
 
     # # 1. use get_experiment_by_name to get experiment objec
     experiment = mlflow.get_experiment_by_name(experiment_name)
