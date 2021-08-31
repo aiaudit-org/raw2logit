@@ -29,6 +29,7 @@ class LitModel(pl.LightningModule):
                  weight_decay=0,
                  loss_aux=None,
                  adv_training=False,
+                 adv_parameters='all',
                  metrics=None,
                  processor=None,
                  augmentation=None,
@@ -57,10 +58,18 @@ class LitModel(pl.LightningModule):
         self.freeze_classifier = freeze_classifier
         self.freeze_processor = freeze_processor
 
+        self.unfreeze()
         if freeze_classifier:
             pl.LightningModule.freeze(self.classifier)
         if freeze_processor:
             pl.LightningModule.freeze(self.processor)
+
+        if adv_training and adv_parameters != 'all':
+            if adv_parameters != 'all':
+                pl.LightningModule.freeze(self.processor)
+                for name, p in self.processor.named_parameters():
+                    if adv_parameters in name:
+                        p.requires_grad = True
 
     def forward(self, x):
         x = self.processor(x)
@@ -97,7 +106,6 @@ class LitModel(pl.LightningModule):
             y_hat = F.logsigmoid(logits).exp().squeeze()
         else:
             y_hat = torch.argmax(logits, dim=1)
-            
 
         if self.metrics is not None:
             for metric in self.metrics:
@@ -105,11 +113,15 @@ class LitModel(pl.LightningModule):
                 if metric_name == 'accuracy' or not self.training or self.metrics_on_training:
                     m = metric(y_hat.cpu().detach(), y.cpu())
                     self.log(f'{step_name}_{metric_name}', m, on_step=False, on_epoch=True,
-                             prog_bar=self.training or metric_name == 'accuracy')                
+                             prog_bar=self.training or metric_name == 'accuracy')
                 if metric_name == 'iou_score' or not self.training or self.metrics_on_training:
                     m = metric(y_hat.cpu().detach(), y.cpu())
                     self.log(f'{step_name}_{metric_name}', m, on_step=False, on_epoch=True,
                              prog_bar=self.training or metric_name == 'iou_score')
+                elif metric_name == 'accuracy' or not self.training or self.metrics_on_training:
+                    m = metric(y_hat.cpu().detach(), y.cpu())
+                    self.log(f'{step_name}_{metric_name}', m, on_step=False, on_epoch=True,
+                             prog_bar=self.training or metric_name == 'accuracy')
 
         return loss
 
@@ -124,25 +136,15 @@ class LitModel(pl.LightningModule):
 
     def train(self, mode=True):
         self.training = mode
-        # self.processor.train(False)
-        self.processor.train(mode=mode and not self.freeze_processor)
+
+        # don't update batchnorm in adversarial training
+        self.processor.train(mode=mode and not self.freeze_processor and not self.adv_training)
         self.classifier.train(mode=mode and not self.freeze_classifier)
-        if self.adv_training and self.processor.batch_norm is not None:  # don't update batchnorm in adversarial training
-            self.processor.batch_norm.track_running_stats = False
         return self
 
     def configure_optimizers(self):
         self.optimizer = torch.optim.Adam(self.parameters(), self.lr, weight_decay=self.weight_decay)
-        # parameters = [self.processor.additive_layer]
-        # self.optimizer = torch.optim.Adam(parameters, self.lr, weight_decay=self.weight_decay)
         return self.optimizer
-        # self.scheduler = {
-        #     'scheduler': torch.optim.lr_scheduler.ReduceLROnPlateau(
-        #         self.optimizer, mode='min', factor=0.2, patience=2, min_lr=1e-6, verbose=True,
-        #     ),
-        #     'monitor': 'val_loss',
-        # }
-        # return [self.optimizer], [self.scheduler]
 
     def get_progress_bar_dict(self):
         items = super().get_progress_bar_dict()
@@ -151,7 +153,7 @@ class LitModel(pl.LightningModule):
 
 
 class TrackImagesCallback(pl.callbacks.base.Callback):
-    def __init__(self, data_loader, track_every_epoch=False, track_processing=True, track_gradients=True, track_predictions=True, save_tensors=True):
+    def __init__(self, data_loader, reference_processor=None, track_every_epoch=False, track_processing=True, track_gradients=True, track_predictions=True, save_tensors=True):
         super().__init__()
         self.data_loader = data_loader
 
@@ -162,9 +164,12 @@ class TrackImagesCallback(pl.callbacks.base.Callback):
         self.track_predictions = track_predictions
         self.save_tensors = save_tensors
 
-    def callback_track_images(self, trainer, save_loc):
-        track_images(trainer.model,
+        self.reference_processor = reference_processor
+
+    def callback_track_images(self, model, save_loc):
+        track_images(model,
                      self.data_loader,
+                     reference_processor=self.reference_processor,
                      track_processing=self.track_processing,
                      track_gradients=self.track_gradients,
                      track_predictions=self.track_predictions,
@@ -175,12 +180,12 @@ class TrackImagesCallback(pl.callbacks.base.Callback):
     def on_fit_end(self, trainer, pl_module):
         if not self.track_every_epoch:
             save_loc = 'results'
-            self.callback_track_images(trainer, save_loc)
+            self.callback_track_images(trainer.model, save_loc)
 
     def on_train_epoch_end(self, trainer, pl_module, outputs):
         if self.track_every_epoch:
             save_loc = f'results/epoch_{trainer.current_epoch + 1:04d}'
-            self.callback_track_images(trainer, save_loc)
+            self.callback_track_images(trainer.model, save_loc)
 
 
 from utils.debug import debug
@@ -201,7 +206,7 @@ def log_tensor(batch, path, save_tensors=True, nrow=8):
     mlflow.log_artifact(img_path, os.path.dirname(path))
 
 
-def track_images(model, data_loader, track_processing=True, track_gradients=True, track_predictions=True, save_tensors=True, save_loc='results'):
+def track_images(model, data_loader, reference_processor=None, track_processing=True, track_gradients=True, track_predictions=True, save_tensors=True, save_loc='results'):
 
     device = model.device
     processor = model.processor
@@ -219,6 +224,9 @@ def track_images(model, data_loader, track_processing=True, track_gradients=True
     logits_full = []
     stages_full = defaultdict(list)
     grads_full = defaultdict(list)
+    diffs_full = defaultdict(list)
+
+    track_differences = reference_processor is not None
 
     for inputs, labels in data_loader:
 
@@ -226,6 +234,10 @@ def track_images(model, data_loader, track_processing=True, track_gradients=True
         inputs.requires_grad = True
 
         processed_rgb = processor(inputs)
+
+        if track_differences:
+            # debug(processor)
+            processed_rgb_ref = reference_processor(inputs)
 
         if track_gradients or track_predictions:
             logits = classifier(processed_rgb)
@@ -241,6 +253,8 @@ def track_images(model, data_loader, track_processing=True, track_gradients=True
 
         for stage, batch in processor.stages.items():
             stages_full[stage].append(batch.cpu().detach())
+            if track_differences:
+                diffs_full[stage].append((reference_processor.stages[stage] - batch).cpu().detach())
             if track_gradients:
                 grads_full[stage].append(batch.grad.cpu().detach())
 
@@ -248,19 +262,29 @@ def track_images(model, data_loader, track_processing=True, track_gradients=True
 
         stages = stages_full
         grads = grads_full
+        diffs = diffs_full
 
         if track_processing:
-            for stage, batch in stages_full.items():
+            for stage, batch in stages.items():
                 stages[stage] = torch.cat(batch)
 
+        if track_differences:
+            for stage, batch in diffs.items():
+                diffs[stage] = torch.cat(batch)
+
         if track_gradients:
-            for stage, batch in grads_full.items():
+            for stage, batch in grads.items():
                 grads[stage] = torch.cat(batch)
 
         for stage_nr, stage_name in enumerate(stages):
             if track_processing:
                 batch = stages[stage_name]
                 log_tensor(batch, os.path.join(save_loc, f'processing_{stage_nr}_{stage_name}.pt'), save_tensors)
+
+            if track_differences:
+                batch = diffs[stage_name]
+                log_tensor(batch, os.path.join(save_loc, f'diffs_{stage_nr}_{stage_name}.pt'), False)
+
             if track_gradients:
                 batch_grad = grads[stage_name]
                 batch_grad = batch_grad.abs()
@@ -270,11 +294,11 @@ def track_images(model, data_loader, track_processing=True, track_gradients=True
 
         # inputs = torch.cat(inputs_full)
 
-        if track_predictions: #and model.is_segmentation_task:
+        if track_predictions:  # and model.is_segmentation_task:
             labels = torch.cat(labels_full)
             logits = torch.cat(logits_full)
             masks = labels.unsqueeze(1)
-            predictions = logits #torch.sigmoid(logits).unsqueeze(1)
+            predictions = logits  # torch.sigmoid(logits).unsqueeze(1)
             #mask_vis = torch.cat((masks, predictions, masks * predictions), dim=1)
             #log_tensor(mask_vis, os.path.join(save_loc, f'masks.pt'), save_tensors)
             log_tensor(masks, os.path.join(save_loc, f'targets.pt'), save_tensors)

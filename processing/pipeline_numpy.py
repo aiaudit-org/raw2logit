@@ -23,7 +23,7 @@ from colour_demosaicing import (demosaicing_CFA_Bayer_bilinear,
 import torch
 import numpy as np
 
-from utils.dataset import Subset
+from dataset import Subset
 from torch.utils.data import DataLoader
 
 from colour_demosaicing import (demosaicing_CFA_Bayer_bilinear,

@@ -15,7 +15,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 if not os.path.exists('README.md'):  # set pwd to root
     os.chdir('..')
 
-from utils.splitting import split_img
+from utils.dataset_utils import split_img, list_images_in_dir, load_image
 from utils.base import np2torch, torch2np, b2_download_folder
 
 IMAGE_FILE_TYPES = ['dng', 'png', 'tif', 'tiff']
@@ -39,24 +39,6 @@ def get_dataset(name, I_ratio=1.0):
         return MicroscopyDatasetRGB(I_ratio=I_ratio)
 
     raise ValueError(name)
-
-
-def load_image(path):
-    file_type = path.split('.')[-1].lower()
-    if file_type == 'dng':
-        img = rawpy.imread(path).raw_image_visible
-    elif file_type == 'tiff' or file_type == 'tif':
-        img = np.array(tiff.imread(path), dtype=np.float32)
-    else:
-        img = np.array(Image.open(path), dtype=np.float32)
-    return img
-
-
-def list_images_in_dir(path):
-    image_list = [os.path.join(path, img_name)
-                  for img_name in sorted(os.listdir(path))
-                  if img_name.split('.')[-1].lower() in IMAGE_FILE_TYPES]
-    return image_list
 
 
 class ImageFolderDataset(Dataset):
@@ -166,18 +148,20 @@ class ImageFolderDatasetSegmentation(Dataset):
 
         return img, mask
 
+
 class MultiIntensity(Dataset):
     """Wrap datasets with different intesities
 
     Args:
         datasets (list): list of datasets to wrap
     """
+
     def __init__(self, datasets):
         self.dataset = datasets[0]
 
-        for d in range(1,len(datasets)):
-            self.dataset.images = self.dataset.images+datasets[d].images
-            self.dataset.labels = self.dataset.labels+datasets[d].labels
+        for d in range(1, len(datasets)):
+            self.dataset.images = self.dataset.images + datasets[d].images
+            self.dataset.labels = self.dataset.labels + datasets[d].labels
 
     def __len__(self):
         return len(self.dataset)
@@ -190,6 +174,7 @@ class MultiIntensity(Dataset):
         if self.transform is not None:
             x = self.transform(x)
         return x, y
+
 
 class Subset(Dataset):
     """Define a subset of a dataset by only selecting given indices.
@@ -228,8 +213,8 @@ class DroneDatasetSegmentationFull(ImageFolderDatasetSegmentation):
     camera_parameters = black_level, white_balance, colour_matrix
 
     def __init__(self, I_ratio=1.0, transform=None, force_download=False, bits=16):
-                
-        assert I_ratio in [0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0] 
+
+        assert I_ratio in [0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0]
 
         img_dir = f'data/drone/images_full/raw_scale{int(I_ratio*100):03d}'
         mask_dir = 'data/drone/masks_full'
@@ -411,7 +396,7 @@ def download_microscopy_dataset(force_download):
 
 
 def unzip_microscopy_images():
-            
+
     if os.path.isfile('data/microscopy/labels/.bzEmpty'):
         os.remove('data/microscopy/labels/.bzEmpty')
 
@@ -420,6 +405,7 @@ def unzip_microscopy_images():
             zip = zipfile.ZipFile(os.path.join('data/microscopy/images', file))
             zip.extractall('data/microscopy/images')
             os.remove(os.path.join('data/microscopy/images', file))
+
 
 def unzip_drone_images():
 
@@ -585,38 +571,3 @@ def check_image_folder_consistency(images, masks):
             f"image file {img_file} file type mismatch. Shoule be: {file_type_images}"
         assert mask_file.split('.')[-1].lower() == file_type_masks, \
             f"image file {mask_file} file type mismatch. Should be: {file_type_masks}"
-
-
-def k_fold(dataset, n_splits: int, seed: int, train_size: float):
-    """Split dataset in subsets for cross-validation 
-
-       Args:
-            dataset (class): dataset to split
-            n_split (int): Number of re-shuffling & splitting iterations.
-            seed (int): seed for k_fold splitting
-            train_size (float): should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the train split.
-       Returns:
-           idxs (list): indeces for splitting the dataset. The list contain n_split pair of train/test indeces.
-    """
-    if hasattr(dataset, 'labels'):
-        x = dataset.images
-        y = dataset.labels
-    elif hasattr(dataset, 'masks'):
-        x = dataset.images
-        y = dataset.masks
-
-    idxs = []
-
-    if dataset.task == 'classification':
-        sss = StratifiedShuffleSplit(n_splits=n_splits, train_size=train_size, random_state=seed)
-
-        for idxs_train, idxs_test in sss.split(x, y):
-            idxs.append((idxs_train.tolist(), idxs_test.tolist()))
-
-    elif dataset.task == 'segmentation':
-        for n in range(n_splits):
-            split_idx = int(len(dataset) * train_size)
-            indices = np.random.permutation(len(dataset))
-            idxs.append((indices[:split_idx].tolist(), indices[split_idx:].tolist()))
-
-    return idxs

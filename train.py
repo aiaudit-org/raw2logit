@@ -4,6 +4,7 @@ import copy
 import argparse
 
 import torch
+from torch import optim
 import torch.nn as nn
 
 import mlflow.pytorch
@@ -16,17 +17,18 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from utils.base import display_mlflow_run_info, str2bool, fetch_from_mlflow, get_name, data_loader_mean_and_std
 from utils.debug import debug
+from utils.dataset_utils import k_fold
 from utils.augmentation import get_augmentation
-from utils.dataset import Subset, get_dataset, k_fold
+from dataset import Subset, get_dataset
 
-from processingpipeline.pipeline import RawProcessingPipeline
-from processingpipeline.torch_pipeline import raw2rgb, RawToRGB, ParametrizedProcessing, NNProcessing
+from processing.pipeline_numpy import RawProcessingPipeline
+from processing.pipeline_torch import add_additive_layer, raw2rgb, RawToRGB, ParametrizedProcessing, NNProcessing
 
-from models.classifier import log_tensor, resnet_model, LitModel, TrackImagesCallback
+from model import log_tensor, resnet_model, LitModel, TrackImagesCallback
 
 import segmentation_models_pytorch as smp
 
-from utils.pytorch_ssim import SSIM
+from utils.ssim import SSIM
 
 # args to set up task
 parser = argparse.ArgumentParser(description="classification_task")
@@ -106,32 +108,24 @@ parser.add_argument("--adv_training", action='store_true', help="Enable adversar
 parser.add_argument("--adv_aux_weight", type=float, default=1, help="Weighting of the adversarial auxilliary loss")
 parser.add_argument("--adv_aux_loss", type=str, default='ssim', choices=['l2', 'ssim'],
                     help="Type of adversarial auxilliary regularization loss")
+parser.add_argument("--adv_noise_layer", action='store_true', help="Adds an additive layer to Parametrized Processing")
+parser.add_argument("--adv_track_differences", action='store_true', help='Save difference to default pipeline')
+parser.add_argument('--adv_parameters', choices=['all', 'black_level', 'white_balance',
+                                                 'colour_correction', 'gamma_correct', 'sharpening_filter', 'gaussian_blur', 'additive_layer'])
 
 parser.add_argument("--cache_downloaded_models", type=str2bool, default=True)
 
 parser.add_argument('--test_run', action='store_true')
 
-if 'ipykernel_launcher' in sys.argv[0]:
-    args = parser.parse_args([
-        '--dataset=Microscopy',
-        '--epochs=100',
-        '--augmentation=strong',
-        '--lr=1e-5',
-        '--freeze_processor',
-        # '--track_processing',
-        # '--test_run',
-        # '--track_predictions',
-        # '--track_every_epoch',
-        # '--adv_training',
-        # '--adv_aux_weight=100',
-        # '--adv_aux_loss=l2',
-        # '--log_model=',
-    ])
-else:
-    args = parser.parse_args()
+
+args = parser.parse_args()
+
+os.makedirs('results', exist_ok=True)
 
 
 def run_train(args):
+
+    print(args)
 
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     training_mode = 'adversarial' if args.adv_training else 'default'
@@ -139,8 +133,8 @@ def run_train(args):
     # set tracking uri, this is the address of the mlflow server where light experimental data will be stored
     mlflow.set_tracking_uri(args.tracking_uri)
     mlflow.set_experiment(args.experiment_name)
-    os.environ["AWS_ACCESS_KEY_ID"] = #TODO: add your AWS access key if you want to write your results to our collaborative lab server
-    os.environ["AWS_SECRET_ACCESS_KEY"] = #TODO: add your AWS seceret access key if you want to write your results to our collaborative lab server
+    os.environ["AWS_ACCESS_KEY_ID"] = "AKIAYYIYHFHKBIJHOJPA"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "eUSKKy+T+KzBKWvAw5PrM/MDwEgkE0LcpNWgnmir"
 
     # dataset
 
@@ -197,8 +191,9 @@ def run_train(args):
                 if args.processing_mode == 'parametrized':
                     processor = ParametrizedProcessing(
                         camera_parameters=dataset.camera_parameters, track_stages=track_stages, batch_norm_output=True,
-                        noise_layer=args.adv_training,   # XXX: Remove?
+                        # noise_layer=args.adv_noise_layer, # this has to be added manually afterwards for when a model is loaded that doesn't have one yet
                     )
+
                 elif args.processing_mode == 'neural_network':
                     processor = NNProcessing(track_stages=track_stages,
                                              normalize_mosaic=normalize_mosaic, batch_norm_output=True)
@@ -252,13 +247,19 @@ def run_train(args):
                 assert not args.freeze_processor, "Processor should not be frozen for adversarial training"
 
                 processor_default = copy.deepcopy(processor)
-                processor_default.track_stages = False
+                processor_default.track_stages = args.track_processing
                 processor_default.eval()
                 processor_default.to(DEVICE)
                 # debug(processor_default)
+                for p in processor_default.parameters():
+                    p.requires_grad = False
+
+                if args.adv_noise_layer:
+                    add_additive_layer(processor)
 
                 def l2_regularization(x, y):
-                    return (x - y).norm()
+                    return ((x - y) ** 2).sum()
+                    # return (x - y).norm()
 
                 if args.adv_aux_loss == 'l2':
                     regularization = l2_regularization
@@ -274,7 +275,8 @@ def run_train(args):
                         self.weight = weight
 
                     def forward(self, x):
-                        x_reference = processor_default(x)
+                        with torch.no_grad():
+                            x_reference = processor_default(x)
                         x_processed = processor.buffer['processed_rgb']
                         return self.weight * self.loss_aux(x_reference, x_processed)
 
@@ -290,7 +292,7 @@ def run_train(args):
                     def __repr__(self):
                         return f'{self.weight} * {get_name(self.loss)}'
 
-                loss = WeightedLoss(loss=nn.CrossEntropyLoss(), weight=-1)
+                loss = WeightedLoss(loss=loss, weight=-1)
                 # loss = WeightedLoss(loss=nn.CrossEntropyLoss(), weight=0)
                 loss_aux = AuxLoss(
                     loss_aux=regularization,
@@ -303,8 +305,10 @@ def run_train(args):
                 classifier=classifier,
                 processor=processor,
                 loss=loss,
+                lr=args.lr,
                 loss_aux=loss_aux,
                 adv_training=args.adv_training,
+                adv_parameters=args.adv_parameters,
                 metrics=metrics,
                 augmentation=augmentation,
                 is_segmentation_task=dataset.task == 'segmentation',
@@ -346,7 +350,7 @@ def run_train(args):
 
             with mlflow.start_run(run_name=f"{args.run_name}_{k_iter}", nested=True) as child_run:
 
-                #mlflow.pytorch.autolog(silent=True)
+                # mlflow.pytorch.autolog(silent=True)
 
                 if k_iter == 0:
                     display_mlflow_run_info(child_run)
@@ -373,19 +377,22 @@ def run_train(args):
                                                      tracking_uri=args.tracking_uri,)
                 mlf_logger._run_id = child_run.info.run_id
 
+                reference_processor = processor_default if args.adv_training and args.adv_track_differences else None
+
                 callbacks = []
                 if args.track_processing:
                     callbacks += [TrackImagesCallback(track_loader,
+                                                      reference_processor,
                                                       track_every_epoch=args.track_every_epoch,
                                                       track_processing=args.track_processing,
                                                       track_gradients=args.track_processing_gradients,
                                                       track_predictions=args.track_predictions,
                                                       save_tensors=args.track_save_tensors)]
 
-                #if True: #args.save_best:
+                # if True: #args.save_best:
                 #    if dataset.task == 'classification':
-                        #checkpoint_callback = ModelCheckpoint(pathmonitor="val_accuracy", mode='max')
-                #        checkpoint_callback = ModelCheckpoint(dirpath=args.tracking_uri, save_top_k=1, verbose=True, monitor="val_accuracy", mode="max") #dirpath=args.tracking_uri, 
+                    #checkpoint_callback = ModelCheckpoint(pathmonitor="val_accuracy", mode='max')
+                #        checkpoint_callback = ModelCheckpoint(dirpath=args.tracking_uri, save_top_k=1, verbose=True, monitor="val_accuracy", mode="max") #dirpath=args.tracking_uri,
                 #    else:
                 #        checkpoint_callback = ModelCheckpoint(monitor="val_iou_score")
                 #callbacks += [checkpoint_callback]
@@ -397,7 +404,7 @@ def run_train(args):
                     logger=mlf_logger,
                     callbacks=callbacks,
                     check_val_every_n_epoch=args.check_val_every_n_epoch,
-                    #checkpoint_callback=True,
+                    # checkpoint_callback=True,
                 )
 
                 if args.log_model:
@@ -410,9 +417,8 @@ def run_train(args):
                     val_dataloaders=valid_loader,
                 )
 
-                # if args.adv_training:
-                #     for (name, p1), p2 in zip(processor.named_parameters(), processor_default.cpu().parameters()):
-                #         print(f"param '{name}' diff: {p2 - p1}, l2: {(p2-p1).norm().item()}")
+    globals().update(locals())  # for convenient access
+
     return model
 
 

@@ -5,7 +5,7 @@ import torch.nn as nn
 if not os.path.exists('README.md'):
     os.chdir('..')
 
-from processingpipeline.pipeline import processing as default_processing
+from processing.pipeline_numpy import processing as default_processing
 from utils.base import np2torch, torch2np
 
 import segmentation_models_pytorch as smp
@@ -83,7 +83,7 @@ class NNProcessing(nn.Module):
             in_channels=3,
             classes=3,
         )
-        self.batch_norm = None if not batch_norm_output else nn.BatchNorm2d(3)
+        self.batch_norm = None if not batch_norm_output else nn.BatchNorm2d(3, affine=False)
         self.normalize_mosaic = normalize_mosaic
 
     def forward(self, raw):
@@ -108,20 +108,23 @@ class NNProcessing(nn.Module):
         return rgb
 
 
+def add_additive_layer(processor):
+    processor.additive_layer = nn.Parameter(torch.zeros((1, 3, 256, 256)))
+    # processor.additive_layer = nn.Parameter(0.001 * torch.randn((1, 3, 256, 256)))
+
+
 class ParametrizedProcessing(nn.Module):
-    def __init__(self, camera_parameters, track_stages=False, batch_norm_output=True, noise_layer=False):
+    def __init__(self, camera_parameters, track_stages=False, batch_norm_output=True):
         super().__init__()
         self.stages = None
         self.buffer = None
         self.track_stages = track_stages
 
         black_level, white_balance, colour_matrix = camera_parameters
-        self.register_buffer('black_level', torch.as_tensor(black_level))
-        self.register_buffer('colour_correction',
-                             torch.as_tensor(white_balance).reshape(1, 3)
-                             * torch.as_tensor(colour_matrix).reshape(3, 3))
-        self.register_buffer('M_RGB_2_YUV', M_RGB_2_YUV.clone())
-        self.register_buffer('M_YUV_2_RGB', M_YUV_2_RGB.clone())
+
+        self.black_level = nn.Parameter(torch.as_tensor(black_level))
+        self.white_balance = nn.Parameter(torch.as_tensor(white_balance).reshape(1, 3))
+        self.colour_correction = nn.Parameter(torch.as_tensor(colour_matrix).reshape(3, 3))
 
         self.gamma_correct = nn.Parameter(torch.Tensor([2.2]))
 
@@ -133,14 +136,12 @@ class ParametrizedProcessing(nn.Module):
         self.gaussian_blur = nn.Conv2d(1, 1, kernel_size=5, padding=2, padding_mode='reflect', bias=False)
         self.gaussian_blur.weight.data[0][0] = K_BLUR.clone()
 
-        self.batch_norm = nn.BatchNorm2d(3) if batch_norm_output else None
+        self.batch_norm = nn.BatchNorm2d(3, affine=False) if batch_norm_output else None
 
-        # if noise_layer:
-        #     for param in self.parameters():
-        #         param.requires_grad = False
+        self.register_buffer('M_RGB_2_YUV', M_RGB_2_YUV.clone())
+        self.register_buffer('M_YUV_2_RGB', M_YUV_2_RGB.clone())
 
-        self.additive_layer = nn.Parameter(0.001 * torch.randn((1, 3, 256, 256))
-                                           ) if noise_layer else None  # XXX: can this be 0?
+        self.additive_layer = None  # this can be added in later
 
     def forward(self, raw):
         assert raw.ndim == 3, f"needs dims (B, H, W), got {raw.shape}"
@@ -157,6 +158,7 @@ class ParametrizedProcessing(nn.Module):
         rgb = self.debayer(rgb)
         # self.stages['debayer'] = rgb
 
+        rgb = torch.einsum('bchw,kc->bchw', rgb, self.white_balance).contiguous()
         rgb = torch.einsum('bchw,kc->bkhw', rgb, self.colour_correction).contiguous()
         self.stages['color_correct'] = rgb
 
@@ -179,7 +181,6 @@ class ParametrizedProcessing(nn.Module):
         self.stages['gamma_correct'] = rgb
 
         if self.additive_layer is not None:
-            # rgb = rgb + 0 * self.additive_layer
             rgb = rgb + self.additive_layer
             self.stages['noise'] = rgb
 
@@ -259,11 +260,11 @@ if __name__ == "__main__":
         os.chdir('..')
 
     import matplotlib.pyplot as plt
-    from utils.dataset import get_dataset
+    from dataset import get_dataset
     from utils.base import np2torch, torch2np
 
     from utils.debug import debug
-    from processingpipeline.pipeline import processing as default_processing
+    from processing.pipeline_numpy import processing as default_processing
 
     raw_dataset = get_dataset('DS')
     loader = torch.utils.data.DataLoader(raw_dataset, batch_size=1)

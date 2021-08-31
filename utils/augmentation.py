@@ -99,7 +99,7 @@ if __name__ == '__main__':
         os.chdir('..')
 
     # from utils.debug import debug
-    from utils.dataset import get_dataset
+    from dataset import get_dataset
     import matplotlib.pyplot as plt
 
     dataset = get_dataset('DS')  # drone segmentation
