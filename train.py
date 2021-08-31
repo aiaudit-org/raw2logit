@@ -133,8 +133,8 @@ def run_train(args):
     # set tracking uri, this is the address of the mlflow server where light experimental data will be stored
     mlflow.set_tracking_uri(args.tracking_uri)
     mlflow.set_experiment(args.experiment_name)
-    os.environ["AWS_ACCESS_KEY_ID"] = "AKIAYYIYHFHKBIJHOJPA"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "eUSKKy+T+KzBKWvAw5PrM/MDwEgkE0LcpNWgnmir"
+    os.environ["AWS_ACCESS_KEY_ID"] = "#TODO: fill in your aws access key id for mlflow server here"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "#TODO: fill in your aws secret access key for mlflow server here"
 
     # dataset
 
