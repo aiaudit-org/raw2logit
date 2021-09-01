@@ -20,17 +20,10 @@ import argparse
 
 
 class SmartFormatter(argparse.HelpFormatter):
-<<<<<<< HEAD
-        
+      
     def _split_lines(self, text, width):
         if text.startswith('R|'):
             return text[2:].splitlines()  
-=======
-
-    def _split_lines(self, text, width):
-        if text.startswith('R|'):
-            return text[2:].splitlines()
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
         # this is the RawTextHelpFormatter._split_lines
         return argparse.HelpFormatter._split_lines(self, text, width)
 
@@ -136,13 +129,8 @@ def b2_list_files(folder=''):
 
 def get_b2_bucket():
     bucket_name = 'perturbed-minds'
-<<<<<<< HEAD
-    application_key_id = '003d6b042de536a0000000004'
-    application_key = 'K003E5Cr+BAYlvSHfg2ynLtvS5aNq78'
-=======
     application_key_id = '003d6b042de536a0000000008'
     application_key = 'K003HMNxnoa91Dy9c0V8JVCKNUnwR9U'
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
     info = InMemoryAccountInfo()
     b2_api = B2Api(info)
     b2_api.authorize_account('production', application_key_id, application_key)
@@ -205,18 +193,9 @@ def b2_download_folder(b2_dir, local_dir, force_download=False, mirror_folder=Tr
 def get_name(obj):
     return obj.__name__ if hasattr(obj, '__name__') else type(obj).__name__
 
-
-<<<<<<< HEAD
-def get_mlflow_model_by_name(experiment_name, run_name, 
-                    tracking_uri = "http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com",
-                    download_model = True):
-    
-=======
 def get_mlflow_model_by_name(experiment_name, run_name,
                              tracking_uri="http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com",
                              download_model=True):
-
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
     # 0. mlflow basics
     mlflow.set_tracking_uri(tracking_uri)
     os.environ["AWS_ACCESS_KEY_ID"] = "#TODO: add your AWS access key if you want to write your results to our collaborative lab server"
@@ -229,17 +208,11 @@ def get_mlflow_model_by_name(experiment_name, run_name,
     if os.path.isfile('cache/runs_names.pkl'):
         runs = pd.read_pickle('cache/runs_names.pkl')
         if runs['tags.mlflow.runName'][runs['tags.mlflow.runName'] == run_name].empty:
-<<<<<<< HEAD
-            runs = fetch_runs_list_mlflow(experiment) #returns a pandas data frame where each row is a run (if several exist under that name) 
-    else: 
-        runs = fetch_runs_list_mlflow(experiment) #returns a pandas data frame where each row is a run (if several exist under that name) 
-=======
             # returns a pandas data frame where each row is a run (if several exist under that name)
             runs = fetch_runs_list_mlflow(experiment)
     else:
         # returns a pandas data frame where each row is a run (if several exist under that name)
         runs = fetch_runs_list_mlflow(experiment)
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
 
     # 3. get the selected run between all runs inside the selected experiment
     run = runs.loc[runs['tags.mlflow.runName'] == run_name]
@@ -257,18 +230,10 @@ def get_mlflow_model_by_name(experiment_name, run_name,
     # model = mlflow.pytorch.load_model(os.path.join(
     #         artifact_uri, "model"), map_location=torch.device(DEVICE))
     model = fetch_from_mlflow(os.path.join(
-<<<<<<< HEAD
-                artifact_uri, "model"), use_cache=True, download_model=download_model)
-
-    return state_dict, model
-
-=======
         artifact_uri, "model"), use_cache=True, download_model=download_model)
 
     return state_dict, model
 
-
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
 def data_loader_mean_and_std(data_loader, transform=None):
     means = []
     stds = []
@@ -279,20 +244,11 @@ def data_loader_mean_and_std(data_loader, transform=None):
         stds.append(x.std(dim=(0, 2, 3)).unsqueeze(0))
     return torch.cat(means).mean(dim=0), torch.cat(stds).mean(dim=0)
 
-<<<<<<< HEAD
-def fetch_runs_list_mlflow(experiment):        
-=======
-
 def fetch_runs_list_mlflow(experiment):
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
     runs = mlflow.search_runs(experiment.experiment_id)
     runs.to_pickle('cache/runs_names.pkl')  # where to save it, usually as a .pkl
     return runs
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
 def fetch_from_mlflow(uri, use_cache=True, download_model=True):
     cache_loc = os.path.join('cache', uri.split('//')[1]) + '.pt'
     if use_cache and os.path.exists(cache_loc):
