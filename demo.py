@@ -47,8 +47,7 @@ iface = gr.Interface(
         ["demo-files/micro.png"]
     ],
     title="static pipeline demo",
-    description="You can select a sample raw image, the camera parameters and the pipeline configuration to process the raw image.",
-    layout="vertical")
+    description="You can select a sample raw image, the camera parameters and the pipeline configuration to process the raw image.")
 
 if __name__ == "__main__":
     iface.launch(share=True)
