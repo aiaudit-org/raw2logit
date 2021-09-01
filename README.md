@@ -32,13 +32,8 @@ If you use our code you can use the convenient cloud storage integration. Data w
 ```python
 def get_b2_bucket():
     bucket_name = 'perturbed-minds'
-<<<<<<< HEAD
-    application_key_id = '003d6b042de536a0000000004'
-    application_key = 'K003E5Cr+BAYlvSHfg2ynLtvS5aNq78'
-=======
     application_key_id = '003d6b042de536a0000000008'
     application_key = 'K003HMNxnoa91Dy9c0V8JVCKNUnwR9U'
->>>>>>> ea1d33b387781225b4149b4b1b3b04f34dc42268
     info = InMemoryAccountInfo()
     b2_api = B2Api(info)
     b2_api.authorize_account('production', application_key_id, application_key)
