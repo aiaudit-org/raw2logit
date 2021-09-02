@@ -3,7 +3,7 @@ from collections import defaultdict
 
 import torch
 import torch.optim
-from torchvision.models import resnet18
+from torchvision.models import resnet18, resnet34, resnet50
 from torchvision.utils import make_grid, save_image
 import torch.nn.functional as F
 
@@ -12,10 +12,13 @@ import pytorch_lightning as pl
 import mlflow.pytorch
 
 
-def resnet_model(model=resnet18, pretrained=True, in_channels=3, fc_out_features=2):
-    resnet = model(pretrained=pretrained)
-    # if not pretrained:  # TODO: add case for in_channels=4
-    #     resnet.conv1 = torch.nn.Conv2d(channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+def resnet_model(model='resnet18', pretrained=True, in_channels=3, fc_out_features=2):
+    if model.lower() == 'resnet18':
+        resnet = resnet18(pretrained=pretrained)
+    if model.lower() == 'resnet34':
+        resnet = resnet34(pretrained=pretrained)
+    if model.lower() == 'resnet50':
+        resnet = resnet50(pretrained=pretrained)
     resnet.fc = torch.nn.Linear(in_features=512, out_features=fc_out_features, bias=True)
     return resnet
 
@@ -81,10 +84,6 @@ class LitModel(pl.LightningModule):
 
     def update_step(self, batch, step_name):
         x, y = batch
-        # debug(self.processor)
-        # debug(self.processor.parameters())
-        # debug.pause()
-        # print('type', type(self.processor).__name__)
 
         logits = self(x)
 

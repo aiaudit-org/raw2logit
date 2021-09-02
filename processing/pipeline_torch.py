@@ -43,6 +43,18 @@ DEFAULT_CAMERA_PARAMS = (
 
 
 class RawToRGB(nn.Module):
+    """transforms a raw image with 1 channel to rgb with 3 channels 
+
+    Args:
+        reduce_size (bool, optional): if False, the output image will have the same height and width 
+            as the raw input, i.e. (B, C, H, W), empty values are filled with zeros.
+            if True, the output dimensions are reduced by half (B, C, H//2, W//2), 
+        out_channels (int, optional): number of output channels. One of {3, 4}.
+            for 3 channels, the two green channels are averaged.
+        track_stages (bool, optional): whether or not to retain intermediary steps in processing
+        normalize_mosaic (function, optional): applies normalization transformation to rgb image
+    """
+
     def __init__(self, reduce_size=True, out_channels=3, track_stages=False, normalize_mosaic=None):
         super().__init__()
         self.stages = None
@@ -71,6 +83,14 @@ class RawToRGB(nn.Module):
 
 
 class NNProcessing(nn.Module):
+    """Transforms raw images to processed rgb via a segmentation Unet
+
+    Args:
+        track_stages (bool, optional): whether or not to retain intermediary steps in processing
+        normalize_mosaic (function, optional): applies normalization transformation to rgb image
+        batch_norm_output (bool, optional): adds a BatchNorm layer to the end of the processing
+    """
+
     def __init__(self, track_stages=False, normalize_mosaic=None, batch_norm_output=True):
         super().__init__()
         self.stages = None
@@ -89,7 +109,7 @@ class NNProcessing(nn.Module):
     def forward(self, raw):
         self.stages = {}
         self.buffer = {}
-        # self.stages['raw'] = raw
+
         rgb = raw2rgb(raw)
         if self.normalize_mosaic:
             rgb = self.normalize_mosaic(rgb)
@@ -108,17 +128,28 @@ class NNProcessing(nn.Module):
         return rgb
 
 
-def add_additive_layer(processor):
+def append_additive_layer(processor):
     processor.additive_layer = nn.Parameter(torch.zeros((1, 3, 256, 256)))
     # processor.additive_layer = nn.Parameter(0.001 * torch.randn((1, 3, 256, 256)))
 
 
 class ParametrizedProcessing(nn.Module):
-    def __init__(self, camera_parameters, track_stages=False, batch_norm_output=True):
+    """Differentiable processing pipeline via torch transformations
+
+    Args:
+        camera_parameters (tuple(list), optional): applies given camera parameters in processing
+        track_stages (bool, optional): whether or not to retain intermediary steps in processing
+        batch_norm_output (bool, optional): adds a BatchNorm layer to the end of the processing
+    """
+
+    def __init__(self, camera_parameters=None, track_stages=False, batch_norm_output=True):
         super().__init__()
         self.stages = None
         self.buffer = None
         self.track_stages = track_stages
+
+        if camera_parameters is None:
+            camera_parameters = DEFAULT_CAMERA_PARAMS
 
         black_level, white_balance, colour_matrix = camera_parameters
 
@@ -197,8 +228,11 @@ class ParametrizedProcessing(nn.Module):
 
 
 class Debayer(nn.Conv2d):
+    """Separates the mosaiced raw image into its channels and interpolates bilinearly. Output is of same size as input.
+    """
+
     def __init__(self):
-        super().__init__(3, 3, kernel_size=3, padding=1, padding_mode='reflect', bias=False)    # default_pipeline uses 'replicate'
+        super().__init__(3, 3, kernel_size=3, padding=1, padding_mode='reflect', bias=False)    # pipeline_numpy uses 'replicate'
         self.weight.data.fill_(0)
         self.weight.data[0, 0] = K_RB.clone()
         self.weight.data[1, 1] = K_G.clone()
@@ -206,15 +240,16 @@ class Debayer(nn.Conv2d):
 
 
 def raw2rgb(raw, black_level=None, reduce_size=True, out_channels=3):
-    """transform raw image with 1 channel to rgb with 3 channels 
+    """Transforms a raw image with 1 channel to rgb with 3 channels 
+
     Args:
         raw (Tensor): raw Tensor of shape (B, H, W)
         black_level (iterable, optional): RGGB black level values to subtract
         reduce_size (bool, optional): if False, the output image will have the same height and width 
             as the raw input, i.e. (B, C, H, W), empty values are filled with zeros.
             if True, the output dimensions are reduced by half (B, C, H//2, W//2), 
-            the two green channels are averaged.
         out_channels (int, optional): number of output channels. One of {3, 4}.
+            The two green channels are averaged if out_channels == 3.
     """
     assert out_channels in [3, 4]
     if black_level is None:

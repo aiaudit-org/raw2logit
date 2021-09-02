@@ -18,14 +18,7 @@ from b2sdk.v1 import *
 
 import argparse
 
-
-class SmartFormatter(argparse.HelpFormatter):
-      
-    def _split_lines(self, text, width):
-        if text.startswith('R|'):
-            return text[2:].splitlines()  
-        # this is the RawTextHelpFormatter._split_lines
-        return argparse.HelpFormatter._split_lines(self, text, width)
+from torch import nn
 
 
 def str2bool(string):
@@ -193,6 +186,7 @@ def b2_download_folder(b2_dir, local_dir, force_download=False, mirror_folder=Tr
 def get_name(obj):
     return obj.__name__ if hasattr(obj, '__name__') else type(obj).__name__
 
+
 def get_mlflow_model_by_name(experiment_name, run_name,
                              tracking_uri="http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com",
                              download_model=True):
@@ -234,6 +228,7 @@ def get_mlflow_model_by_name(experiment_name, run_name,
 
     return state_dict, model
 
+
 def data_loader_mean_and_std(data_loader, transform=None):
     means = []
     stds = []
@@ -244,23 +239,35 @@ def data_loader_mean_and_std(data_loader, transform=None):
         stds.append(x.std(dim=(0, 2, 3)).unsqueeze(0))
     return torch.cat(means).mean(dim=0), torch.cat(stds).mean(dim=0)
 
+
 def fetch_runs_list_mlflow(experiment):
     runs = mlflow.search_runs(experiment.experiment_id)
     runs.to_pickle('cache/runs_names.pkl')  # where to save it, usually as a .pkl
     return runs
 
-def fetch_from_mlflow(uri, use_cache=True, download_model=True):
+
+def fetch_from_mlflow(uri, type='', use_cache=True, download_model=True):
     cache_loc = os.path.join('cache', uri.split('//')[1]) + '.pt'
     if use_cache and os.path.exists(cache_loc):
         print(f'loading cached model from {cache_loc} ...')
-        return torch.load(cache_loc)
+        model = torch.load(cache_loc)
     else:
         print(f'fetching model from {uri} ...')
         model = mlflow.pytorch.load_model(uri)
         os.makedirs(os.path.dirname(cache_loc), exist_ok=True)
         if download_model:
             torch.save(model, cache_loc, pickle_module=mlflow.pytorch.pickle_module)
-        return model
+    if type == 'processor':
+        processor = model.processor
+        model.processor = None
+        del model   # free up memory space
+        return processor
+    if type == 'classifier':
+        classifier = model.classifier
+        model.classifier = None
+        del model   # free up memory space
+        return classifier
+    return model
 
 
 def display_mlflow_run_info(run):
@@ -315,16 +322,50 @@ def get_train_test_indices_drone(df, frac, seed=None):
     return train_indices, test_indices
 
 
-def smp_get_loss(loss):
-    if loss == "Dice":
-        return smp.losses.DiceLoss(mode='binary', from_logits=True)
-    if loss == "BCE":
-        return nn.BCELoss()
-    elif loss == "BCEWithLogits":
-        return smp.losses.BCEWithLogitsLoss()
-    elif loss == "DicyBCE":
-        from pytorch_toolbelt import losses as ptbl
-        return ptbl.JointLoss(ptbl.DiceLoss(mode='binary', from_logits=False),
-                              nn.BCELoss(),
-                              first_weight=args.dice_weight,
-                              second_weight=args.bce_weight)
+# def smp_get_loss(loss):
+#     if loss == "Dice":
+#         return smp.losses.DiceLoss(mode='binary', from_logits=True)
+#     if loss == "BCE":
+#         return nn.BCELoss()
+#     elif loss == "BCEWithLogits":
+#         return smp.losses.BCEWithLogitsLoss()
+#     elif loss == "DicyBCE":
+#         from pytorch_toolbelt import losses as ptbl
+#         return ptbl.JointLoss(ptbl.DiceLoss(mode='binary', from_logits=False),
+#                               nn.BCELoss(),
+#                               first_weight=args.dice_weight,
+#                               second_weight=args.bce_weight)
+
+
+# Adversarial setup
+
+def l2_regularization(x, y):
+    return ((x - y) ** 2).sum()
+
+
+class AuxLoss(nn.Module):
+    def __init__(self, loss_aux, processor_adv, processor_default, weight=1):
+        super().__init__()
+        self.loss_aux = loss_aux
+        self.weight = weight
+        self.processor_adv = processor_adv
+        self.processor_default = processor_default
+
+    def forward(self, x):
+        with torch.no_grad():
+            x_reference = self.processor_default(x)
+        x_processed = self.processor.buffer['processed_rgb']
+        return self.weight * self.loss_aux(x_reference, x_processed)
+
+
+class WeightedLoss(nn.Module):
+    def __init__(self, loss, weight=1):
+        super().__init__()
+        self.loss = loss
+        self.weight = weight
+
+    def forward(self, x, y):
+        return self.weight * self.loss(x, y)
+
+    def __repr__(self):
+        return f'{self.weight} * {get_name(self.loss)}'
