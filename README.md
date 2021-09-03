@@ -4,6 +4,18 @@
 
 *This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.*
 
+Author details
+    @article{oala_aversa_lens_2021,
+      title = {From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data},
+      shorttitle = {From Lens to Logit},
+      url = {https://openreview.net/forum?id=DRAywM1BhU},
+      urldate = {2021-08-28},
+      author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck,    
+      Michèle and Matek, Christian and Clausen, Christoph and Murray-Smith, Roderick and Sanguinetti, Bruno},
+      month = aug,
+      year = {2021}
+    }
+
 In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
 
 ## A short introduction
