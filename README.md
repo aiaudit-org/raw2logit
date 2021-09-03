@@ -4,24 +4,11 @@
 
 *This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.*
 
-Author details
-
-    @article{oala_aversa_lens_2021,
-      title = {From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data},
-      shorttitle = {From Lens to Logit},
-      url = {https://openreview.net/forum?id=DRAywM1BhU},
-      urldate = {2021-08-28},
-      author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, 
-      Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck, Michèle and Matek, Christian and 
-      Clausen, Christoph and Murray-Smith, Roderick and Sanguinetti, Bruno},
-      month = aug,
-      year = {2021}
-    }
-
 ## A short introduction
+In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
+
 ![L2L Overview](https://user-images.githubusercontent.com/38631399/131536063-585cf9b0-e76e-4e41-a05e-2fcf4902f539.png)
 
-In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
 
 To create an image, raw sensor data traverses complex image signal processing pipelines. These pipelines are used by cameras and scientific instruments to produce the images fed into machine learning systems. The processing pipelines vary by device, influencing the resulting image statistics and ultimately contributing to what is known as hardware-drift. However, this processing is rarely considered in machine learning modelling, because available benchmark data sets are generally not in raw format. Here we show that pairing qualified raw sensor data with an explicit, differentiable model of the image processing pipeline allows to tackle camera hardware-drift. 
 
@@ -140,3 +127,17 @@ We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo
 Experiments are listed in the left column. You can select individual runs or compare metrics and parameters across different runs. For runs where we tracked images of intermediate processing steps and images of the gradients at these processing steps you can find at the bottom of a run page in the *results* folder for each epoch.
 ### Use our trained models
 When selecting a run and a model was saved you can find the model files, state dictionary and instructions to load at the bottom of a run page under *models*. In the menu bar at the top of the virtual lab log you can also access models via the *Model Registry*. Our code is well integrated with the *mlflow* autologging and -loading package for PyTorch. So when using our code you can just specify the *model uri* as an argument and models will be fetched from the model registry automatically.
+
+## Author details
+
+    @article{oala_aversa_lens_2021,
+      title = {From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data},
+      shorttitle = {From Lens to Logit},
+      url = {https://openreview.net/forum?id=DRAywM1BhU},
+      urldate = {2021-08-28},
+      author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, 
+      Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck, Michèle and Matek, Christian and 
+      Clausen, Christoph and Murray-Smith, Roderick and Sanguinetti, Bruno},
+      month = aug,
+      year = {2021}
+    }
