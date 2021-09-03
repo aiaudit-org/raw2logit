@@ -5,6 +5,7 @@
 *This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.*
 
 Author details
+
     @article{oala_aversa_lens_2021,
       title = {From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data},
       shorttitle = {From Lens to Logit},
