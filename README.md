@@ -11,8 +11,9 @@ Author details
       shorttitle = {From Lens to Logit},
       url = {https://openreview.net/forum?id=DRAywM1BhU},
       urldate = {2021-08-28},
-      author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck,    
-      Michèle and Matek, Christian and Clausen, Christoph and Murray-Smith, Roderick and Sanguinetti, Bruno},
+      author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, 
+      Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck, Michèle and Matek, Christian and 
+      Clausen, Christoph and Murray-Smith, Roderick and Sanguinetti, Bruno},
       month = aug,
       year = {2021}
     }
