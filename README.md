@@ -81,7 +81,6 @@ $ python train.py \
 --log_model True \
 --iso 0.01 \
 --freeze_processor \
---processor_uri "$processor_uri" \
 --track_processing \
 --track_every_epoch \
 --track_predictions \
