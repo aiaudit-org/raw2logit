@@ -55,6 +55,15 @@ We noticed that PyPi package for `segmentation_models_pytorch` is sometimes behi
 ```console
 $ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
 ```
+#### mlflow tracking
+Note that we are maintaining a collaborative [virtual lab log](http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com/#/). By default, anyone has read access to e.g. browse results and fetch trained, stored models. Writing to the server is only possible by specifying the AWS key in `train.py`:
+```python
+ mlflow.set_tracking_uri(args.tracking_uri)
+ mlflow.set_experiment(args.experiment_name)
+ os.environ['AWS_ACCESS_KEY_ID'] = '#TODO: fill in your aws access key id for mlflow server here'
+ os.environ['AWS_SECRET_ACCESS_KEY'] = '#TODO: fill in your aws secret access key for mlflow server here'
+```
+If you would also like to write results to the server please request an AWS key to use. Else you can also disable mlflow tracking and use `train.py` without the virtual lab log. 
 ### Recreate experiments
 The central file for using the **Lens2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the type of experiments reported in the [paper](https://openreview.net/forum?id=DRAywM1BhU)
 #### Controlled synthesis of hardware-drift test cases
