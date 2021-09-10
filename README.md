@@ -134,13 +134,15 @@ We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo
 
 
 ### Review our experiments
-Experiments are listed in the left column. You can select individual runs or compare metrics and parameters across different runs. For runs where we tracked images of intermediate processing steps and images of the gradients at these processing steps you can find at the bottom of a run page in the *results* folder for each epoch.
+Experiments are listed in the left column. You can select individual runs or compare metrics and parameters across different runs. For runs where we tracked images of intermediate processing steps and images of the gradients at these processing steps you can find at the bottom of a run page in the *results* folder for each epoch. For better overview we include a map between the names of experiments in the paper and names of experiments in the virtual lab log:
 
 | Name of experiment in paper | Name of experiment in virtual lab log |
 | :-------------: | :-----:|
 | 5.1 Controlled synthesis of hardware-drift test cases | 1 Controlled synthesis of hardware-drift test cases (Train) , 1 Controlled synthesis of hardware-drift test cases (Test)|
 | 5.2 Modular hardware-drift forensics | 2 Modular hardware-drift forensics |
 | 5.3 Image processing customization | 3 Image processing customization (Microscopy), 3 Image processing customization (Drone) |
+
+Not that the virtual lab log includes many additional experiments.
 
 ### Use our trained models
 When selecting a run and a model was saved you can find the model files, state dictionary and instructions to load at the bottom of a run page under *models*. In the menu bar at the top of the virtual lab log you can also access models via the *Model Registry*. Our code is well integrated with the *mlflow* autologging and -loading package for PyTorch. So when using our code you can just specify the *model uri* as an argument and models will be fetched from the model registry automatically.
