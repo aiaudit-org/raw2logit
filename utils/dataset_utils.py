@@ -1,11 +1,18 @@
+"""
+Dataset Import/Download Tools
+"""
 
+import os
 import random
 import numpy as np
+import rawpy
+from PIL import Image
 
 import torch
 
 from skimage.util.shape import view_as_windows
 
+IMAGE_FILE_TYPES = ['dng', 'png', 'tif', 'tiff']
 
 def load_image(path):
     file_type = path.split('.')[-1].lower()

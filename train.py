@@ -16,7 +16,6 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 from utils.base import AuxLoss, WeightedLoss, display_mlflow_run_info, l2_regularization, str2bool, fetch_from_mlflow, get_name, data_loader_mean_and_std
-from utils.debug import debug
 from utils.dataset_utils import k_fold
 from utils.augmentation import get_augmentation
 from dataset import Subset, get_dataset

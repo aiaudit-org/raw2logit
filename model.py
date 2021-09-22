@@ -187,10 +187,6 @@ class TrackImagesCallback(pl.callbacks.base.Callback):
             self.callback_track_images(trainer.model, save_loc)
 
 
-from utils.debug import debug
-
-
-# @debug
 def log_tensor(batch, path, save_tensors=True, nrow=8):
     if save_tensors:
         torch.save(batch, path)
