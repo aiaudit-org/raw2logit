@@ -7,6 +7,7 @@ import random
 import numpy as np
 import rawpy
 from PIL import Image
+from sklearn.model_selection import StratifiedShuffleSplit
 
 import torch
 
