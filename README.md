@@ -2,12 +2,13 @@
 
 # From Lens to Logit - Addressing Camera Hardware-Drift Using Raw Sensor Data
 
-[**Manuscript**](https://openreview.net/forum?id=DRAywM1BhU) | [**Project site**](https://aiaudit.org/lens2logit/) | [**Data**](https://doi.org/10.5281/zenodo.5235536)
+<!-- [**Manuscript**](https://openreview.net/forum?id=DRAywM1BhU) | -->
+[**Project site**](https://aiaudit.org/lens2logit/) | [**Data**](https://doi.org/10.5281/zenodo.5235536)
 
-*This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.*
+<!--*This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.* -->
 
 ## A short introduction
-In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we reocommend the [project site](https://aiaudit.org/lens2logit/) or the [full paper](https://openreview.net/forum?id=DRAywM1BhU).
+In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we recommend the [project site](https://aiaudit.org/lens2logit/). <!-- or the [full paper](https://openreview.net/forum?id=DRAywM1BhU). -->
 
 ![L2L Overview](https://user-images.githubusercontent.com/38631399/131536063-585cf9b0-e76e-4e41-a05e-2fcf4902f539.png)
 
@@ -152,7 +153,7 @@ When selecting a run and a model was saved you can find the model files, state d
     @article{oala_aversa_lens_2021,
       title = {From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data},
       shorttitle = {From Lens to Logit},
-      url = {https://openreview.net/forum?id=DRAywM1BhU},
+      url = {https://aiaudit.org/lens2logit/},
       urldate = {2021-08-28},
       author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, 
       Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck, Michèle and Matek, Christian and 
