@@ -1,24 +1,19 @@
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
 
-# From Lens to Logit - Addressing Camera Hardware-Drift Using Raw Sensor Data
+# Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit
 
-<!-- [**Manuscript**](https://openreview.net/forum?id=DRAywM1BhU) | -->
-[**Project site**](https://aiaudit.org/lens2logit/) | [**Data**](https://doi.org/10.5281/zenodo.5235536)
-
-<!--*This repository hosts the code for the project ["From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data"](https://openreview.net/forum?id=DRAywM1BhU), submitted to the NeurIPS 2021 Datasets and Benchmarks Track.* -->
+*This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.*
 
 ## A short introduction
-In order to address camera hardware-drift we require two ingredients: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments. For a conceptual overview of the project we recommend the [project site](https://aiaudit.org/lens2logit/). <!-- or the [full paper](https://openreview.net/forum?id=DRAywM1BhU). -->
+Two ingredients are required for the **Raw2Logit** dataset drift controls: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments.
 
-![L2L Overview](https://user-images.githubusercontent.com/38631399/131536063-585cf9b0-e76e-4e41-a05e-2fcf4902f539.png)
+![R2L Overview](https://github.com/luisoala/raw2logit/blob/master/pmflow8.png)
 
+To create an image, raw sensor data traverses complex image signal processing (ISP) pipelines. These pipelines are used by cameras and scientific instruments to produce the images fed into machine learning systems. The processing pipelines vary by device, influencing the resulting image statistics and ultimately contributing to dataset drift. However, this processing is rarely considered in machine learning modelling. In this study, we examine the role raw sensor data and differentiable processing models can play in controlling performance risks related to dataset drift. The findings are distilled into three applications.
 
-To create an image, raw sensor data traverses complex image signal processing pipelines. These pipelines are used by cameras and scientific instruments to produce the images fed into machine learning systems. The processing pipelines vary by device, influencing the resulting image statistics and ultimately contributing to what is known as hardware-drift. However, this processing is rarely considered in machine learning modelling, because available benchmark data sets are generally not in raw format. Here we show that pairing qualified raw sensor data with an explicit, differentiable model of the image processing pipeline allows to tackle camera hardware-drift. 
-
-Specifically, we demonstrate 
-1. the **controlled synthesis of hardware-drift test cases**
-2. modular **hardware-drift forensics**, as well as 
-3. **image processing customization**. 
+1. **Drift forensics** can be used to isolate performance-sensitive data processing configurations which should be avoided during deployment of a machine learning model
+2. **Drift synthesis** enables the controlled generation of drift test cases. The experiments presented here show that the average decrease in model performance is ten to four times less severe than under post-hoc perturbation testing
+3. **Drift adjustment** opens up the possibility for processing adjustments in the face of drift
 
 We make available two data sets. 
 1. **Raw-Microscopy**, contains 
@@ -57,38 +52,11 @@ We noticed that PyPi package for `segmentation_models_pytorch` is sometimes behi
 $ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorch
 ```
 #### mlflow tracking
-Note that we are maintaining a collaborative [virtual lab log](http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com/#/). By default, anyone has read access to e.g. browse results and fetch trained, stored models. Writing to the server is only possible by specifying the AWS key in `train.py`:
-```python
- mlflow.set_tracking_uri(args.tracking_uri)
- mlflow.set_experiment(args.experiment_name)
- os.environ['AWS_ACCESS_KEY_ID'] = '#TODO: fill in your aws access key id for mlflow server here'
- os.environ['AWS_SECRET_ACCESS_KEY'] = '#TODO: fill in your aws secret access key for mlflow server here'
-```
-If you would also like to write results to the server please request an AWS key to use. Else you can also disable mlflow tracking and use `train.py` without the virtual lab log. 
+Note that we are maintaining a collaborative mlflow virtual lab server. The tracking API is integrated into the code. By default, anyone has read access to e.g. browse results and fetch trained, stored models. For the purpose of anonymization the link to the tracking server info is removed here as it contains identfiable information of persons who submitted jobs. You can setup your own mlflow server for the purposes of this anonymized version of code or disable mlflow tracking and use `train.py` without the virtual lab log. 
 ### Recreate experiments
-The central file for using the **Lens2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the type of experiments reported in the [paper](https://openreview.net/forum?id=DRAywM1BhU)
-#### Controlled synthesis of hardware-drift test cases
-```console
-$ python train.py \
---experiment_name YOUR-EXPERIMENT-NAME \
---run_name YOUR-RUN-NAME \
---dataset Microscopy \
---lr 1e-5 \
---n_splits 5 \
---epochs 5 \
---classifier_pretrained \
---processing_mode static \
---augmentation weak \
---log_model True \
---iso 0.01 \
---freeze_processor \
---track_processing \
---track_every_epoch \
---track_predictions \
---track_processing_gradients \
---track_save_tensors \
-```
-#### Modular hardware-drift forensics
+The central file for using the **Raw2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the type of experiments reported in the [paper](https://openreview.net/forum?id=DRAywM1BhU)
+
+#### Drift forensics
 ```console
 $ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
@@ -109,7 +77,28 @@ $ python train.py \
 --track_processing_gradients \
 --track_save_tensors \
 ```
-#### Image processing customization
+#### Drift synthesis
+```console
+$ python train.py \
+--experiment_name YOUR-EXPERIMENT-NAME \
+--run_name YOUR-RUN-NAME \
+--dataset Microscopy \
+--lr 1e-5 \
+--n_splits 5 \
+--epochs 5 \
+--classifier_pretrained \
+--processing_mode static \
+--augmentation weak \
+--log_model True \
+--iso 0.01 \
+--freeze_processor \
+--track_processing \
+--track_every_epoch \
+--track_predictions \
+--track_processing_gradients \
+--track_save_tensors \
+```
+#### Drfit adjustments
 ```console
 $ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
@@ -129,35 +118,3 @@ $ python train.py \
 --track_processing_gradients \
 --track_save_tensors \
 ```
-## Virtual lab log
-We maintain a collaborative virtual lab log at [this address](http://deplo-mlflo-1ssxo94f973sj-890390d809901dbf.elb.eu-central-1.amazonaws.com/#/). There you can browse experiment runs, analyze results through SQL queries and download trained processing and task models.
-![mlflow](https://user-images.githubusercontent.com/38631399/131536233-f6b6e0ae-35f2-4ee0-a5e2-d04f8efb8d73.png)
-
-
-### Review our experiments
-Experiments are listed in the left column. You can select individual runs or compare metrics and parameters across different runs. For runs where we tracked images of intermediate processing steps and images of the gradients at these processing steps you can find at the bottom of a run page in the *results* folder for each epoch. For better overview we include a map between the names of experiments in the paper and names of experiments in the virtual lab log:
-
-| Name of experiment in paper | Name of experiment in virtual lab log |
-| :-------------: | :-----:|
-| 5.1 Controlled synthesis of hardware-drift test cases | 1 Controlled synthesis of hardware-drift test cases (Train) , 1 Controlled synthesis of hardware-drift test cases (Test)|
-| 5.2 Modular hardware-drift forensics | 2 Modular hardware-drift forensics |
-| 5.3 Image processing customization | 3 Image processing customization (Microscopy), 3 Image processing customization (Drone) |
-
-Not that the virtual lab log includes many additional experiments.
-
-### Use our trained models
-When selecting a run and a model was saved you can find the model files, state dictionary and instructions to load at the bottom of a run page under *models*. In the menu bar at the top of the virtual lab log you can also access models via the *Model Registry*. Our code is well integrated with the *mlflow* autologging and -loading package for PyTorch. So when using our code you can just specify the *model uri* as an argument and models will be fetched from the model registry automatically.
-
-## Author details
-
-    @article{oala_aversa_lens_2021,
-      title = {From Lens to Logit: Addressing Camera Hardware-Drift Using Raw Sensor Data},
-      shorttitle = {From Lens to Logit},
-      url = {https://aiaudit.org/lens2logit/},
-      urldate = {2021-08-28},
-      author = {Oala, Luis and Aversa, Marco and Willis, Kurt and Nobis, Gabriel and Pomarico, 
-      Enrico and Neuenschwander, Yoan and Extermann, Jérôme and Buck, Michèle and Matek, Christian and 
-      Clausen, Christoph and Murray-Smith, Roderick and Sanguinetti, Bruno},
-      month = aug,
-      year = {2021}
-    }
