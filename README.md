@@ -25,7 +25,7 @@ We make available two data sets.
    * **3,288 variations measured at six different intensities** and also twelve additional sets totalling 
    * **6,576 images of the raw sensor data processed through different pipelines**.
 ## Data access
-If you use our code you can use the convenient cloud storage integration. Data will be loaded automatically from a cloud storage bucket and stored to your working machine. You can find the code snippet doing that [here](https://github.com/aiaudit-org/lens2logit/blob/f8a165a0c094456f68086167f0bef14c3b311a4e/utils/base.py#L130)
+If you use our code you can use the convenient cloud storage integration. Data will be loaded automatically from a cloud storage bucket and stored to your working machine. You can find the code snippet doing that here:
 
 ```python
 def get_b2_bucket():
@@ -54,7 +54,7 @@ $ python -m pip install git+https://github.com/qubvel/segmentation_models.pytorc
 #### mlflow tracking
 Note that we are maintaining a collaborative mlflow virtual lab server. The tracking API is integrated into the code. By default, anyone has read access to e.g. browse results and fetch trained, stored models. For the purpose of anonymization the link to the tracking server info is removed here as it contains identfiable information of persons who submitted jobs. You can setup your own mlflow server for the purposes of this anonymized version of code or disable mlflow tracking and use `train.py` without the virtual lab log. 
 ### Recreate experiments
-The central file for using the **Raw2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the type of experiments reported in the [paper](https://openreview.net/forum?id=DRAywM1BhU)
+The central file for using the **Raw2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the three experiments reported in the manuscript
 
 #### Drift forensics
 ```console
