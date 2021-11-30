@@ -2,7 +2,7 @@
 
 # Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit
 
-*This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.*
+<!-- *This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.* -->
 
 ## A short introduction
 Two ingredients are required for the **Raw2Logit** dataset drift controls: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments.
