@@ -1,12 +1,3 @@
----
-title: raw2logit
-colorFrom: blue
-colorTo: blue
-sdk: gradio
-app_file: app.py
-pinned: true
----
-
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
 
 # Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit
