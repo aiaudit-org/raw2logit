@@ -16,7 +16,7 @@ pinned: true
 ## A short introduction
 Two ingredients are required for the **Raw2Logit** dataset drift controls: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments.
 
-![R2L Overview](Slice 11 (2).png)
+![R2L Overview](flow.png)
 
 To create an image, raw sensor data traverses complex image signal processing (ISP) pipelines. These pipelines are used by cameras and scientific instruments to produce the images fed into machine learning systems. The processing pipelines vary by device, influencing the resulting image statistics and ultimately contributing to dataset drift. However, this processing is rarely considered in machine learning modelling. In this study, we examine the role raw sensor data and differentiable processing models can play in controlling performance risks related to dataset drift. The findings are distilled into three applications.
 
