@@ -14,15 +14,16 @@ pinned: true
 <!-- *This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.* -->
 
 ## A short introduction
-Two ingredients are required for the **Raw2Logit** dataset drift controls: raw sensor data and an image processing model. This code repository contains the materials for the second ingredient, the image processing model, as well as scripts to load lada and run experiments.
+Two ingredients are required for advanced dataset drift controls: raw sensor data and data models. This code repository contains the materials for the second ingredient, the data models, as well as scripts to load lada and run experiments.
 
 ![R2L Overview](flow.png)
 
 To create an image, raw sensor data traverses complex image signal processing (ISP) pipelines. These pipelines are used by cameras and scientific instruments to produce the images fed into machine learning systems. The processing pipelines vary by device, influencing the resulting image statistics and ultimately contributing to dataset drift. However, this processing is rarely considered in machine learning modelling. In this study, we examine the role raw sensor data and differentiable processing models can play in controlling performance risks related to dataset drift. The findings are distilled into three applications.
 
-1. **Drift forensics** can be used to isolate performance-sensitive data processing configurations which should be avoided during deployment of a machine learning model
-2. **Drift synthesis** enables the controlled generation of drift test cases. The experiments presented here show that the average decrease in model performance is ten to four times less severe than under post-hoc perturbation testing
-3. **Drift adjustment** opens up the possibility for processing adjustments in the face of drift
+
+1. **Drift synthesis** enables the controlled generation of drift test cases. The experiments presented here show that the average decrease in model performance is ten to four times less severe than under post-hoc augmentation testing.
+2. **Drift forensics** can be used to isolate performance-sensitive data processing configurations which should be avoided during deployment of a machine learning model.
+3. **Drift adjustment** opens up the possibility for processing adjustments in the face of drift.
 
 We make available two data sets. 
 1. **Raw-Microscopy**, contains 
@@ -65,27 +66,6 @@ Note that we are maintaining a collaborative mlflow virtual lab server. The trac
 ### Recreate experiments
 The central file for using the **Raw2Logit** framework for experiments as in the paper is `train.py` which provides a rich set of arguments to experiment with raw image data, different image processing models and task models for regression or classification. Below we provide three example prompts for the three experiments reported in the manuscript
 
-#### Drift forensics
-```console
-$ python train.py \
---experiment_name YOUR-EXPERIMENT-NAME \
---run_name YOUR-RUN-NAME \
---dataset Microscopy \
---adv_training
---lr 1e-5 \
---n_splits 5 \
---epochs 5 \
---classifier_pretrained \
---processing_mode parametrized \
---augmentation weak \
---log_model True \
---iso 0.01 \
---track_processing \
---track_every_epoch \
---track_predictions \
---track_processing_gradients \
---track_save_tensors \
-```
 #### Drift synthesis
 ```console
 $ python train.py \
@@ -107,7 +87,28 @@ $ python train.py \
 --track_processing_gradients \
 --track_save_tensors \
 ```
-#### Drfit adjustments
+#### Drift forensics
+```console
+$ python train.py \
+--experiment_name YOUR-EXPERIMENT-NAME \
+--run_name YOUR-RUN-NAME \
+--dataset Microscopy \
+--adv_training
+--lr 1e-5 \
+--n_splits 5 \
+--epochs 5 \
+--classifier_pretrained \
+--processing_mode parametrized \
+--augmentation weak \
+--log_model True \
+--iso 0.01 \
+--track_processing \
+--track_every_epoch \
+--track_predictions \
+--track_processing_gradients \
+--track_save_tensors \
+```
+#### Drift adjustments
 ```console
 $ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
