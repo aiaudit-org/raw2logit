@@ -9,7 +9,7 @@ pinned: true
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
 
-# Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit
+# Data Models for Dataset Drift Controls in Machine Learning with Images
 
 <!-- *This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.* -->
 
