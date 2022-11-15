@@ -14,7 +14,7 @@ pinned: true
 <!-- *This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.* -->
 
 ## A short introduction
-Two ingredients are required for advanced dataset drift controls: raw sensor data and data models. This code repository contains the materials for the second ingredient, the data models, as well as scripts to load lada and run experiments.
+Two ingredients are required for advanced dataset drift controls: raw sensor data and data models. This code repository contains the materials for the second ingredient, the data models, as well as scripts to load data and run experiments.
 
 ![R2L Overview](flow.png)
 
