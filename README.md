@@ -6,12 +6,19 @@ sdk: gradio
 app_file: app.py
 pinned: true
 ---
-
-[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
 
 # Data Models for Dataset Drift Controls in Machine Learning With Images
 
-<!-- *This anonymous repository hosts the code for manuscript #4471 "Dataset Drift Controls Using Raw Image Data and Differentiable ISPs: From Raw to Logit", submitted to CVPR 2022.* -->
+     @misc{https://doi.org/10.48550/arxiv.2211.02578,
+      doi = {10.48550/ARXIV.2211.02578},
+      url = {https://arxiv.org/abs/2211.02578},
+      author = {Oala, Luis and Aversa, Marco and Nobis, Gabriel and Willis, Kurt and Neuenschwander, Yoan and Buck, Michèle and Matek, Christian and Extermann, Jerome and Pomarico, Enrico and Samek, Wojciech and Murray-Smith, Roderick and Clausen, Christoph and Sanguinetti, Bruno},
+      title = {Data Models for Dataset Drift Controls in Machine Learning With Images},
+      publisher = {arXiv},
+      year = {2022},
+      copyright = {Creative Commons Attribution 4.0 International}
+    }
 
 ## A short introduction
 Two ingredients are required for advanced dataset drift controls: raw sensor data and data models. This code repository contains the materials for the second ingredient, the data models, as well as scripts to load data and run experiments.
@@ -108,7 +115,7 @@ $ python train.py \
 --track_processing_gradients \
 --track_save_tensors \
 ```
-#### Drift adjustments
+#### Drift optimization
 ```console
 $ python train.py \
 --experiment_name YOUR-EXPERIMENT-NAME \
