@@ -23,7 +23,7 @@ To create an image, raw sensor data traverses complex image signal processing (I
 
 1. **Drift synthesis** enables the controlled generation of drift test cases. The experiments presented here show that the average decrease in model performance is ten to four times less severe than under post-hoc augmentation testing.
 2. **Drift forensics** can be used to isolate performance-sensitive data processing configurations which should be avoided during deployment of a machine learning model.
-3. **Drift adjustment** opens up the possibility for processing adjustments in the face of drift.
+3. **Drift optimization** opens up the possibility to adjust data generation to help the task model learn better faster.
 
 We make available two data sets. 
 1. **Raw-Microscopy**, contains 
