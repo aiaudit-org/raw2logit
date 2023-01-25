@@ -9,6 +9,7 @@ pinned: true
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
 
 # Data Models for Dataset Drift Controls in Machine Learning With Images
+**[Paper](https://arxiv.org/abs/2211.02578) | [Data](https://doi.org/10.5281/zenodo.5235536)**
 
      @misc{https://doi.org/10.48550/arxiv.2211.02578,
       doi = {10.48550/ARXIV.2211.02578},
