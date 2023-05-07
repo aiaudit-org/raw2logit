@@ -8,18 +8,19 @@ pinned: true
 ---
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5235536.svg)](https://doi.org/10.5281/zenodo.5235536)
 
-# Data Models for Dataset Drift Controls in Machine Learning With Images
-**[Paper](https://arxiv.org/abs/2211.02578) | [Data](https://doi.org/10.5281/zenodo.5235536)**
+# Data Models for Dataset Drift Controls in Machine Learning With Optical Images
+**[Paper](https://openreview.net/forum?id=I4IkGmgFJz) | [Data](https://doi.org/10.5281/zenodo.5235536)**
 
-     @misc{https://doi.org/10.48550/arxiv.2211.02578,
-      doi = {10.48550/ARXIV.2211.02578},
-      url = {https://arxiv.org/abs/2211.02578},
-      author = {Oala, Luis and Aversa, Marco and Nobis, Gabriel and Willis, Kurt and Neuenschwander, Yoan and Buck, Michèle and Matek, Christian and Extermann, Jerome and Pomarico, Enrico and Samek, Wojciech and Murray-Smith, Roderick and Clausen, Christoph and Sanguinetti, Bruno},
-      title = {Data Models for Dataset Drift Controls in Machine Learning With Images},
-      publisher = {arXiv},
-      year = {2022},
-      copyright = {Creative Commons Attribution 4.0 International}
-    }
+     @article{
+       oala2023data,
+       title={Data Models for Dataset Drift Controls in Machine Learning With Optical Images},
+       author={Luis Oala and Marco Aversa and Gabriel Nobis and Kurt Willis and Yoan Neuenschwander and Mich{\`e}le Buck and Christian Matek and Jerome Extermann and Enrico Pomarico and Wojciech Samek and Roderick Murray-Smith and Christoph Clausen and Bruno Sanguinetti},
+       journal={Transactions on Machine Learning Research},
+       issn={2835-8856},
+       year={2023},
+       url={https://openreview.net/forum?id=I4IkGmgFJz},
+       note={}
+     }
 
 ## A short introduction
 Two ingredients are required for advanced dataset drift controls: raw sensor data and data models. This code repository contains the materials for the second ingredient, the data models, as well as scripts to load data and run experiments.
